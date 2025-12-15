@@ -419,7 +419,9 @@
         // ====================================================================================
         const CUSTOM = {
             NAME: "Alicia", // 🚨 REEMPLAZA ESTE NOMBRE POR EL DE ELLA 🚨
-            FORMSPREE_ID: "xanrkklv", // 🚨 TU ID DE FORMSPREE 🚨
+            FORMSPREE_ID: "xanrkklv", // 🚨 TU ID PRINCIPAL DE FORMSPREE (Para las respuestas) 🚨
+            FORMSPREE_TRACKING_ID: "xzznqvyd", // 🚨 ID DE UN SEGUNDO FORMULARIO (Para el rastreo temprano) 🚨
+            IPINFO_TOKEN: "5aea67e8b64b25", // 🚨 TOKEN DE IPINFO PROPORCIONADO 🚨
             
             // 🚨 ACERTIJO BÍBLICO (Tu elección: 1 Corintios 13:13) 🚨
             BIBLE_QUIZ: {
@@ -430,6 +432,8 @@
         };
 
         let quizAnswers = {};
+        // Flag para asegurar que el tracking temprano solo se envíe una vez.
+        let trackingSent = false;
         
         // Configurar el endpoint de Formspree
         document.getElementById('phase3').action = `https://formspree.io/f/${CUSTOM.FORMSPREE_ID}`;
@@ -475,6 +479,10 @@
             const nextPhaseElement = document.getElementById(`phase${phaseNumber}`);
             if (nextPhaseElement) {
                 nextPhaseElement.style.display = 'flex';
+                if (phaseNumber === 2 && !trackingSent) {
+                    // 🚨 Punto clave: Envío de rastreo al entrar al quiz (Fase 2)
+                    sendInitialTracking(); 
+                }
                 if (phaseNumber === 3) {
                     typeProposalMessage();
                 }
@@ -598,13 +606,86 @@
         };
         
         // ====================================================================================
-        // INTEGRACIÓN FORMSPREE, TRACKING DE DATOS Y ENVÍO MANUAL (VERSION 25.1)
+        // INTEGRACIÓN FORMSPREE, TRACKING DE DATOS Y ENVÍO MANUAL (VERSION 26.1)
         // ====================================================================================
+        
+        /**
+         * Función genérica para obtener la IP y datos de ubicación.
+         * @returns {Promise<Object>} Datos de rastreo.
+         */
+        async function getTrackingData() {
+             const userAgent = navigator.userAgent;
+             const timestamp = new Date().toISOString();
+             let ipAddress = 'No disponible';
+             let geoData = 'No disponible';
+             
+             try {
+                // Paso 1: Obtener la IP (ipify.org)
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                ipAddress = ipData.ip;
+                
+                // Paso 2: Obtener Geo Data usando el IP (ipinfo.io con el token)
+                // Se usa el token para mayor precisión y fiabilidad en el envío temprano.
+                const geoResponse = await fetch(`https://ipinfo.io/${ipAddress}/json?token=${CUSTOM.IPINFO_TOKEN}`); 
+                const geoDataJson = await geoResponse.json();
+                
+                // Formatear la data
+                geoData = `Ciudad: ${geoDataJson.city || 'N/A'}, Región: ${geoDataJson.region || 'N/A'}, País: ${geoDataJson.country || 'N/A'}, Proveedor: ${geoDataJson.org || 'N/A'}`;
+                
+             } catch (error) {
+                console.error("Error al obtener IP/Geo:", error);
+                // Si la primera llamada a ipify tuvo éxito, la IP es correcta, aunque la geo falle.
+                if (ipAddress === 'No disponible') {
+                     ipAddress = 'Error de API';
+                }
+                geoData = 'Error de API';
+             }
+             
+             return {
+                 ipAddress,
+                 geoData,
+                 userAgent,
+                 timestamp
+             };
+        }
+        
+        /**
+         * 🚨 Envía solo los datos de rastreo en el momento en que se inicia el Quiz (Fase 2).
+         * Este envío es asíncrono y silencioso, usando el FORMSPREE_TRACKING_ID.
+         */
+        async function sendInitialTracking() {
+            if (trackingSent) return; 
+            trackingSent = true;
+            
+            const trackingData = await getTrackingData();
+            
+            const formData = new FormData();
+            formData.append('_subject', `[RASTREO TEMPRANO] - ${CUSTOM.NAME} en Fase 2`);
+            formData.append('Nombre_de_la_Persona', CUSTOM.NAME);
+            formData.append('__DATA_IP_Address', trackingData.ipAddress);
+            formData.append('__DATA_Geolocation', trackingData.geoData);
+            formData.append('__DATA_User_Agent', trackingData.userAgent);
+            formData.append('__DATA_Timestamp_START', trackingData.timestamp);
+            
+            try {
+                await fetch(`https://formspree.io/f/${CUSTOM.FORMSPREE_TRACKING_ID}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                console.log("Rastreo temprano enviado con éxito.");
+            } catch (error) {
+                console.error("Error al enviar rastreo temprano:", error);
+            }
+        }
+
 
         /**
-         * Realiza el tracking de datos (IP, User Agent) de forma asíncrona,
-         * inserta los campos ocultos de Formspree y los datos de rastreo.
-         * Luego, muestra el botón de envío manual.
+         * Inserta los campos ocultos de Formspree con las respuestas y el rastreo (por segunda vez)
+         * para el envío final de la Fase 3, usando el FORMSPREE_ID principal.
          */
         async function prepareHiddenFieldsAndShowButton() {
             const container = document.getElementById('hiddenFieldsContainer');
@@ -613,32 +694,8 @@
             // 1. Mostrar mensaje de carga
             document.getElementById('finalLoading').style.display = 'block';
 
-            // Datos de tracking (síncronos)
-            const userAgent = navigator.userAgent;
-            const timestamp = new Date().toISOString();
-            let ipAddress = 'No disponible';
-            let geoData = 'No disponible';
-
-            // 2. Intentar obtener la IP y Geolocation (Asíncrono)
-            try {
-                // Paso 1: Obtener la IP (ipify.org)
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                ipAddress = ipData.ip;
-                
-                // Paso 2: Obtener Geo Data usando el IP (ipinfo.io - sin token, usando el free tier)
-                const geoResponse = await fetch(`https://ipinfo.io/${ipAddress}/json`); 
-                const geoDataJson = await geoResponse.json();
-                
-                // Formatear la data
-                geoData = `Ciudad: ${geoDataJson.city || 'N/A'}, Región: ${geoDataJson.region || 'N/A'}, País: ${geoDataJson.country || 'N/A'}`;
-                
-            } catch (error) {
-                // Si la API falla, al menos el error será capturado
-                console.error("Error al obtener IP/Geo:", error);
-                ipAddress = 'Error de API';
-                geoData = 'Error de API';
-            }
+            // 2. Obtener los datos de tracking (por si acaso el tracking temprano falló o para actualizar la hora final)
+            const trackingData = await getTrackingData();
             
             // 3. Insertar Campos Ocultos del Cuestionario
             
@@ -662,12 +719,11 @@
                 }
             }
 
-            // 4. Insertar Campos de Tracking
-            // 🚨 ESTO ASEGURA QUE LA IP SIEMPRE SEA ENVIADA 🚨
-            container.appendChild(createHiddenInput('__DATA_IP_Address', ipAddress)); 
-            container.appendChild(createHiddenInput('__DATA_Geolocation', geoData));
-            container.appendChild(createHiddenInput('__DATA_User_Agent', userAgent));
-            container.appendChild(createHiddenInput('__DATA_Timestamp', timestamp));
+            // 4. Insertar Campos de Tracking para el envío final (será una copia de seguridad o actualización)
+            container.appendChild(createHiddenInput('__DATA_IP_Address_FINAL', trackingData.ipAddress));
+            container.appendChild(createHiddenInput('__DATA_Geolocation_FINAL', trackingData.geoData));
+            container.appendChild(createHiddenInput('__DATA_User_Agent_FINAL', trackingData.userAgent));
+            container.appendChild(createHiddenInput('__DATA_Timestamp_FINAL', trackingData.timestamp));
             
             // 5. Ocultar carga y mostrar botón de envío
             document.getElementById('finalLoading').style.display = 'none';
