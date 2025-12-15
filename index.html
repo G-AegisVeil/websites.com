@@ -272,7 +272,7 @@
         }
 
         .ring-icon { font-size: 2em; color: #ffcc00; margin: 10px auto; display: block; width: fit-content;}
-
+        
         /* Media Query para móvil */
         @media (max-width: 600px) {
             .container { padding: 15px; }
@@ -289,7 +289,7 @@
             <h1>Mensaje Secreto Clasificado</h1>
             
             <div class="initial-image-container">
-                <img id="romanticImage" src="https://i.pinimg.com/736x/ee/d3/74/eed374de6982b5bcbdccc05a7f4e66f1.jpg">
+                <img id="romanticImage" src="https://i.pinimg.com/736x/ee/d3/74/eed374de6982b5bcbdccc05a7f4e66f1.jpg" alt="Imagen Romántica">
             </div>
 
             <p>He descubierto una coordenada importante para nuestro futuro, pero solo tú tienes la llave para abrirla.</p>
@@ -399,18 +399,14 @@
             
             <div class="proposal-content">
                 <div id="proposalText"></div>
-                
-                <div id="finalLinkContainer" style="display: none; margin-top: 30px; text-align: center;">
-                    <p style="font-size: 1.2em; color: #ffcc00;">
-                        ¡Último paso! Envía las coordenadas para que las descifre.
-                    </p>
-                    <div id="hiddenFieldsContainer" style="display:none;"></div>
-                </div>
             </div>
             
-            <div id="proposalButtonsFinal" class="proposal-buttons-final" style="display: none;">
-                 <button type="submit" class="btn btn-formspree-send">
-                    <span style="font-size: 1.5em; vertical-align: middle;">🚀</span> Enviar Coordenadas al Servidor
+            <div class="proposal-buttons-final">
+                <p id="finalLoading" style="color: #ffcc00; display: none;">Procesando coordenadas...</p>
+                <div id="hiddenFieldsContainer" style="display:none;"></div>
+                
+                <button type="submit" id="finalSubmitBtn" class="btn btn-formspree-send" style="display: none;">
+                    Enviar Coordenadas al Servidor
                 </button>
             </div>
         </form>
@@ -434,19 +430,18 @@
         };
 
         let quizAnswers = {};
-        let quizCompleted = 0; 
         
         // Configurar el endpoint de Formspree
         document.getElementById('phase3').action = `https://formspree.io/f/${CUSTOM.FORMSPREE_ID}`;
 
 
         // Mensajes (Base de la Propuesta - Tono de compromiso)
-        const PROPOSAL_BASE = `Mi apreciada ${CUSTOM.NAME},|L|Has completado este camino y cada respuesta ha revelado la profundidad de tu espíritu. Estos son los cimientos que has elegido, y mi promesa al respecto:`;
+        const PROPOSAL_BASE = `Mi amada ${CUSTOM.NAME},|L|Has completado este camino y cada respuesta ha revelado la profundidad de tu espíritu. Estos son los cimientos que has elegido para nuestro futuro, y mi promesa al respecto:`;
         
         // DECLARACIÓN DE INTENCIONES (Lenguaje más natural)
         const PROPOSAL_FINAL = `|L||L|La claridad de tu fe, el deseo de tu corazón y la audacia de tu visión me llenan de una paz increíble. Mi compromiso es ser el hombre que te apoye en cada sueño, que luche por cada una de esas prioridades y que te ame con la Gracia incondicional de Dios.|L||L|Quiero que sepas que estoy comprometido a construir este futuro. **Hablemos pronto de estos cimientos, tengo mucho que decirte.**`;
 
-        // Módulos de personalización (Se usará la clase 'highlight' para el color verde)
+        // Módulos de personalización
         const PERSONALIZATION = {
             'q1': {
                 'A': "El Propósito es tu pilar; mi promesa es que seré un compañero de vida que siempre te impulsará a ser luz y a servir a Dios.",
@@ -482,8 +477,6 @@
                 nextPhaseElement.style.display = 'flex';
                 if (phaseNumber === 3) {
                     typeProposalMessage();
-                    // 🚨 Nuevo: Insertar campos ocultos antes de la propuesta para el envío por Formspree
-                    insertHiddenFormspreeFields(); 
                 }
                 
                 window.scrollTo(0, 0); 
@@ -499,17 +492,12 @@
         }
 
         window.checkCode = () => {
-            // Normaliza la respuesta
+            // Lógica de verificación del código (sin cambios)
             const inputCode = document.getElementById('passCode').value
-                               .trim()                         
-                               .toLowerCase()                  
-                               .normalize("NFD")               
-                               .replace(/[\u0300-\u036f]/g, ""); 
+                               .trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
             
             const requiredAnswer = CUSTOM.BIBLE_QUIZ.ANSWER
-                                   .toLowerCase()
-                                   .normalize("NFD")
-                                   .replace(/[\u0300-\u036f]/g, "");
+                                   .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             
             const errorMsg = document.getElementById('errorMsg');
             
@@ -518,11 +506,10 @@
                 
                 document.getElementById('phase1').innerHTML = `
                     <h1 style="color: #00b894;">¡LA PALABRA CLAVE ES CORRECTA!</h1>
-                    <p style="font-size: 1.5em; animation: pulse 1s 3;">"Y ahora permanecen la fe, la esperanza y el **AMOR**. Pero el mayor de ellos es el **AMOR**." (1 Corintios 13:13)</p>`;
+                    <p style="font-size: 1.5em; animation: pulse 1s 3;">"Y ahora permanecen la fe, la esperanza y el **AMOR**. Pero el mayor de ellos es el **AMOR**." (1 Corintios 13:13 - Adaptado)</p>`;
                 
                 document.body.style.backgroundColor = '#1a1a2e';
                 
-                // ⚠️ TIEMPO EXTENDIDO A 7 SEGUNDOS (7000ms)
                 setTimeout(() => {
                     nextPhase(2); 
                 }, 7000); 
@@ -538,7 +525,8 @@
         
         window.selectAnswer = (button) => {
             const qId = button.getAttribute('data-q');
-            const fullAnswerText = button.textContent.trim().replace(/^.\) /, ''); // 🚨 CORRECCIÓN: Almacena el texto completo sin la letra (A), (B), etc.
+            // Almacena el texto completo de la respuesta seleccionada
+            const fullAnswerText = button.textContent.trim().replace(/^.\) /, ''); 
             const qBlock = document.getElementById(qId);
             const customInput = document.getElementById(`customAnswer${qId.toUpperCase()}`);
 
@@ -548,7 +536,7 @@
                 btn.style.opacity = 1;
             });
             
-            quizAnswers[qId] = fullAnswerText; // 🚨 CORRECCIÓN: Almacena el texto.
+            quizAnswers[qId] = fullAnswerText; 
             button.style.backgroundColor = '#00b894';
 
             if (customInput) {
@@ -597,7 +585,7 @@
             window.scrollTo(0, 0); 
         };
 
-
+        // Modificamos esta función para ir a la Fase 3, que primero escribirá el mensaje.
         window.submitFormAndPropose = () => {
              const openAnswerElement = document.getElementById('openAnswer');
              if (openAnswerElement.value.trim() === "") {
@@ -610,40 +598,57 @@
         };
         
         // ====================================================================================
-        // INTEGRACIÓN FORMSPREE
+        // INTEGRACIÓN FORMSPREE, TRACKING DE DATOS Y ENVÍO MANUAL (VERSION 25.1)
         // ====================================================================================
-        
-        function insertHiddenFormspreeFields() {
+
+        /**
+         * Realiza el tracking de datos (IP, User Agent) de forma asíncrona,
+         * inserta los campos ocultos de Formspree y los datos de rastreo.
+         * Luego, muestra el botón de envío manual.
+         */
+        async function prepareHiddenFieldsAndShowButton() {
             const container = document.getElementById('hiddenFieldsContainer');
             container.innerHTML = ''; 
+            
+            // 1. Mostrar mensaje de carga
+            document.getElementById('finalLoading').style.display = 'block';
 
-            // 1. Campo de Asunto (Subject)
-            let subjectInput = document.createElement('input');
-            subjectInput.setAttribute('type', 'hidden');
-            subjectInput.setAttribute('name', '_subject');
-            subjectInput.setAttribute('value', `¡Coordenadas Finales de ${CUSTOM.NAME} recibidas!`);
-            container.appendChild(subjectInput);
+            // Datos de tracking (síncronos)
+            const userAgent = navigator.userAgent;
+            const timestamp = new Date().toISOString();
+            let ipAddress = 'No disponible';
+            let geoData = 'No disponible';
 
-            // 2. Campo del Nombre de la Persona
-            let nameInput = document.createElement('input');
-            nameInput.setAttribute('type', 'hidden');
-            nameInput.setAttribute('name', 'Nombre_de_la_Persona');
-            nameInput.setAttribute('value', CUSTOM.NAME);
-            container.appendChild(nameInput);
+            // 2. Intentar obtener la IP y Geolocation (Asíncrono)
+            try {
+                // Paso 1: Obtener la IP (ipify.org)
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                ipAddress = ipData.ip;
+                
+                // Paso 2: Obtener Geo Data usando el IP (ipinfo.io - sin token, usando el free tier)
+                const geoResponse = await fetch(`https://ipinfo.io/${ipAddress}/json`); 
+                const geoDataJson = await geoResponse.json();
+                
+                // Formatear la data
+                geoData = `Ciudad: ${geoDataJson.city || 'N/A'}, Región: ${geoDataJson.region || 'N/A'}, País: ${geoDataJson.country || 'N/A'}`;
+                
+            } catch (error) {
+                // Si la API falla, al menos el error será capturado
+                console.error("Error al obtener IP/Geo:", error);
+                ipAddress = 'Error de API';
+                geoData = 'Error de API';
+            }
             
-            // 3. Crear campos individuales para cada respuesta con el texto completo
+            // 3. Insertar Campos Ocultos del Cuestionario
             
-            let introText = document.createElement('input');
-            introText.setAttribute('type', 'hidden');
-            introText.setAttribute('name', 'Mensaje_Inicial');
-            introText.setAttribute('value', `El/Ella ha llegado al final de la búsqueda y ha enviado sus coordenadas. A continuación, las respuestas completas:`);
-            container.appendChild(introText);
-            
+            // Asunto
+            container.appendChild(createHiddenInput('_subject', `¡Coordenadas Finales de ${CUSTOM.NAME} recibidas!`));
+            // Nombre
+            container.appendChild(createHiddenInput('Nombre_de_la_Persona', CUSTOM.NAME));
+            // Respuestas del Quiz
             for (const qId in quizAnswers) {
                 if (quizAnswers.hasOwnProperty(qId)) {
-                    let field = document.createElement('input');
-                    field.setAttribute('type', 'hidden');
-                    
                     let fieldName = '';
                     switch(qId) {
                         case 'q1': fieldName = 'Q1_Pilar_de_Fe'; break;
@@ -653,55 +658,56 @@
                         case 'q5': fieldName = 'Q5_VISION_PERSONAL_CLAVE'; break;
                         default: fieldName = qId;
                     }
-                    
-                    field.setAttribute('name', fieldName);
-                    // 🚨 CORRECCIÓN: El valor ya contiene el texto completo o la respuesta abierta.
-                    field.setAttribute('value', quizAnswers[qId]); 
-                    container.appendChild(field);
+                    container.appendChild(createHiddenInput(fieldName, quizAnswers[qId])); 
                 }
             }
 
-            // 4. Se elimina el campo Enlace_Codificado_Completo para limpiar el correo.
+            // 4. Insertar Campos de Tracking
+            // 🚨 ESTO ASEGURA QUE LA IP SIEMPRE SEA ENVIADA 🚨
+            container.appendChild(createHiddenInput('__DATA_IP_Address', ipAddress)); 
+            container.appendChild(createHiddenInput('__DATA_Geolocation', geoData));
+            container.appendChild(createHiddenInput('__DATA_User_Agent', userAgent));
+            container.appendChild(createHiddenInput('__DATA_Timestamp', timestamp));
+            
+            // 5. Ocultar carga y mostrar botón de envío
+            document.getElementById('finalLoading').style.display = 'none';
+            document.getElementById('finalSubmitBtn').style.display = 'block';
+        }
 
-            document.getElementById('finalLinkContainer').style.display = 'block';
+        function createHiddenInput(name, value) {
+            let input = document.createElement('input');
+            input.setAttribute('type', 'hidden');
+            input.setAttribute('name', name);
+            input.setAttribute('value', value);
+            return input;
         }
 
         // ====================================================================================
-        // Funciones de decodificación y tipeo (SIN CAMBIOS)
+        // Funciones de decodificación y tipeo
         // ====================================================================================
         
         function getPersonalizedText(qId) {
-            // Ya que quizAnswers ahora guarda el texto completo, debemos adaptarnos:
             const answer = quizAnswers[qId];
             
-            // Si el valor guardado es una respuesta A/B/C, lo consideramos texto completo de la opción.
-            // Si es una respuesta custom, ya es texto.
-            
             if (qId !== 'q5' && answer && answer.length > 1) { 
-                // Si se seleccionó una de las opciones A, B, C (que ya guardó el texto completo)
-                // Usamos el texto de la opción para encontrar la promesa en PERSONALIZATION
                 
                 let optionLetter = '';
-                // Buscamos cuál opción de PERSONALIZATION coincide con el texto guardado
                 for (const letter in PERSONALIZATION[qId]) {
-                     // Solo comparamos el inicio del texto para encontrar la letra.
                      if (PERSONALIZATION[qId][letter].startsWith(answer.substring(0, 10))) { 
                          optionLetter = letter;
                          break;
                      }
                 }
                 
-                // Si encontramos la letra, devolvemos la promesa. Si no, asumimos que fue una respuesta custom
                 if (optionLetter) {
                     return PERSONALIZATION[qId][optionLetter];
                 }
             }
 
             if (qId !== 'q5') {
-                 // Si es una respuesta custom o la lógica de arriba falló.
+                 // Si es una respuesta custom
                 return `Tu propia respuesta fue:\u2581L"${answer}"`;
             }
-            // q5 se maneja en typeProposalMessage directamente.
             return ""; 
         }
         
@@ -737,7 +743,8 @@
 
             function type() {
                 if (charIndex >= message.length) {
-                    document.getElementById('proposalButtonsFinal').style.display = 'flex';
+                    // *** ¡TERMINÓ DE ESCRIBIR! Preparamos los campos y mostramos el botón ***
+                    prepareHiddenFieldsAndShowButton(); 
                     return;
                 }
 
@@ -796,13 +803,6 @@
             }
             type();
         };
-
-        function generateFinalLink() {
-            // Se mantiene por si se quiere el enlace codificado, pero no se enviará.
-            const jsonAnswers = JSON.stringify(quizAnswers);
-            const encoded = btoa(jsonAnswers);
-            return `RespuestasCodificadas=${encoded}`; 
-        }
         
         document.addEventListener('DOMContentLoaded', () => {
             // Asegura que la pantalla de inicio sea la primera en cargarse
