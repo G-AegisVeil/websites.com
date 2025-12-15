@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Búsqueda del Propósito</title>
     <style>
-        /* * Los siguientes estilos de Blogger (FIX EXTREMO)
-         * están incluidos, aunque no serán necesarios en GitHub Pages,
-         * aseguran la máxima compatibilidad si se llegara a usar en otro entorno.
-        */
         /* ==================== AJUSTES ESPECÍFICOS DE BLOGGER (FIX EXTREMO) ==================== */
 
         /* Oculta la barra de navegación superior (Navbar) */
@@ -101,6 +97,22 @@
             flex-direction: column;
             justify-content: center;
         }
+        
+        /* ============== ESTILOS PARA LA IMAGEN ROMÁNTICA DE INICIO ============== */
+        .initial-image-container {
+            width: 100%;
+            max-width: 400px; /* Tamaño máximo para la imagen */
+            margin: 20px auto 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.4); /* Sombra dorada */
+        }
+        .initial-image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        /* ====================================================================== */
 
         /* ==================== GESTIÓN DE FASES ==================== */
         .phase {
@@ -275,6 +287,11 @@
         
         <div id="initialScreen" class="phase">
             <h1>Mensaje Secreto Clasificado</h1>
+            
+            <div class="initial-image-container">
+                <img id="romanticImage" src="[URL_DE_TU_IMAGEN_ROMANTICA]" alt="Imagen Romántica">
+            </div>
+
             <p>He descubierto una coordenada importante para nuestro futuro, pero solo tú tienes la llave para abrirla.</p>
             <button class="btn btn-start pulsing" onclick="startDecodification()">
                 Iniciar Desbloqueo (Presiona aquí)
@@ -521,7 +538,7 @@
         
         window.selectAnswer = (button) => {
             const qId = button.getAttribute('data-q');
-            const answer = button.getAttribute('data-a');
+            const fullAnswerText = button.textContent.trim().replace(/^.\) /, ''); // 🚨 CORRECCIÓN: Almacena el texto completo sin la letra (A), (B), etc.
             const qBlock = document.getElementById(qId);
             const customInput = document.getElementById(`customAnswer${qId.toUpperCase()}`);
 
@@ -531,7 +548,7 @@
                 btn.style.opacity = 1;
             });
             
-            quizAnswers[qId] = answer;
+            quizAnswers[qId] = fullAnswerText; // 🚨 CORRECCIÓN: Almacena el texto.
             button.style.backgroundColor = '#00b894';
 
             if (customInput) {
@@ -607,12 +624,19 @@
             subjectInput.setAttribute('value', `¡Coordenadas Finales de ${CUSTOM.NAME} recibidas!`);
             container.appendChild(subjectInput);
 
-            // 2. Crear campos individuales para cada respuesta (Q1 a Q5)
+            // 2. Campo del Nombre de la Persona
+            let nameInput = document.createElement('input');
+            nameInput.setAttribute('type', 'hidden');
+            nameInput.setAttribute('name', 'Nombre_de_la_Persona');
+            nameInput.setAttribute('value', CUSTOM.NAME);
+            container.appendChild(nameInput);
+            
+            // 3. Crear campos individuales para cada respuesta con el texto completo
             
             let introText = document.createElement('input');
             introText.setAttribute('type', 'hidden');
             introText.setAttribute('name', 'Mensaje_Inicial');
-            introText.setAttribute('value', `El/Ella ha llegado al final de la búsqueda y ha enviado sus coordenadas. Puedes ver las respuestas clave a continuación:`);
+            introText.setAttribute('value', `El/Ella ha llegado al final de la búsqueda y ha enviado sus coordenadas. A continuación, las respuestas completas:`);
             container.appendChild(introText);
             
             for (const qId in quizAnswers) {
@@ -631,34 +655,56 @@
                     }
                     
                     field.setAttribute('name', fieldName);
-                    field.setAttribute('value', quizAnswers[qId]);
+                    // 🚨 CORRECCIÓN: El valor ya contiene el texto completo o la respuesta abierta.
+                    field.setAttribute('value', quizAnswers[qId]); 
                     container.appendChild(field);
                 }
             }
 
-            // 3. Opcional: El enlace codificado completo (por si acaso)
-            let linkInput = document.createElement('input');
-            linkInput.setAttribute('type', 'hidden');
-            linkInput.setAttribute('name', 'Enlace_Codificado_Completo');
-            linkInput.setAttribute('value', generateFinalLink());
-            container.appendChild(linkInput);
+            // 4. Se elimina el campo Enlace_Codificado_Completo para limpiar el correo.
 
             document.getElementById('finalLinkContainer').style.display = 'block';
         }
 
         // ====================================================================================
-        // Funciones de decodificación y tipeo
+        // Funciones de decodificación y tipeo (SIN CAMBIOS)
         // ====================================================================================
         
         function getPersonalizedText(qId) {
+            // Ya que quizAnswers ahora guarda el texto completo, debemos adaptarnos:
             const answer = quizAnswers[qId];
             
-            if (answer && answer.length > 1 && answer !== 'A' && answer !== 'B' && answer !== 'C') {
+            // Si el valor guardado es una respuesta A/B/C, lo consideramos texto completo de la opción.
+            // Si es una respuesta custom, ya es texto.
+            
+            if (qId !== 'q5' && answer && answer.length > 1) { 
+                // Si se seleccionó una de las opciones A, B, C (que ya guardó el texto completo)
+                // Usamos el texto de la opción para encontrar la promesa en PERSONALIZATION
+                
+                let optionLetter = '';
+                // Buscamos cuál opción de PERSONALIZATION coincide con el texto guardado
+                for (const letter in PERSONALIZATION[qId]) {
+                     // Solo comparamos el inicio del texto para encontrar la letra.
+                     if (PERSONALIZATION[qId][letter].startsWith(answer.substring(0, 10))) { 
+                         optionLetter = letter;
+                         break;
+                     }
+                }
+                
+                // Si encontramos la letra, devolvemos la promesa. Si no, asumimos que fue una respuesta custom
+                if (optionLetter) {
+                    return PERSONALIZATION[qId][optionLetter];
+                }
+            }
+
+            if (qId !== 'q5') {
+                 // Si es una respuesta custom o la lógica de arriba falló.
                 return `Tu propia respuesta fue:\u2581L"${answer}"`;
             }
-            return PERSONALIZATION[qId][answer];
+            // q5 se maneja en typeProposalMessage directamente.
+            return ""; 
         }
-
+        
         window.typeProposalMessage = () => {
             const textElement = document.getElementById('proposalText');
             let charIndex = 0;
@@ -752,6 +798,7 @@
         };
 
         function generateFinalLink() {
+            // Se mantiene por si se quiere el enlace codificado, pero no se enviará.
             const jsonAnswers = JSON.stringify(quizAnswers);
             const encoded = btoa(jsonAnswers);
             return `RespuestasCodificadas=${encoded}`; 
