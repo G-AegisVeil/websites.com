@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Búsqueda del Propósito</title>
+    <style>
+        /* * Los siguientes estilos de Blogger (FIX EXTREMO)
+         * están incluidos, aunque no serán necesarios en GitHub Pages,
+         * aseguran la máxima compatibilidad si se llegara a usar en otro entorno.
+        */
+        /* ==================== AJUSTES ESPECÍFICOS DE BLOGGER (FIX EXTREMO) ==================== */
+
+        /* Oculta la barra de navegación superior (Navbar) */
+        #navbar-iframe {
+            display: none !important;
+            height: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* Oculta TODOS los elementos estructurales y widgets posibles */
+        .header-outer, 
+        .footer-outer, 
+        .main-inner, 
+        .sidebar-container, 
+        .post-share-buttons,
+        .widget-content, 
+        .widget,
+        .post-footer,
+        .post-header,
+        .blog-pager,
+        .profile-link,
+        .popup-box,
+        .blogger-profile,
+        .content-outer, 
+        .column-left-outer, 
+        .column-right-outer, 
+        .main-inner .columns,
+        .main-container,
+        .tabs-outer, 
+        .HTML, 
+        .quickedit { 
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important; 
+            max-height: 0 !important;
+        }
+
+        /* Fuerza el cuerpo y el contenedor a tomar el fondo oscuro A CUALQUIER COSTA */
+        #outer-wrapper, 
+        #content-wrapper, 
+        body {
+            background: #1a1a2e !important; 
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important; 
+            height: 100vh !important; 
+            display: block !important; 
+        }
+
+        /* Asegura que el contenido de tu post (donde va tu código) sea visible */
+        .post-body {
+            display: block !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            min-height: 100vh !important; 
+        }
+        
+        /* ==================== ESTILOS BASE Y CONTENEDOR ==================== */
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #1a1a2e; 
+            color: #e4e4f0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 2s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        .container {
+            /* PROPIEDADES CLAVE PARA LA POSICIÓN (Z-Index alto para prioridad) */
+            position: relative; 
+            z-index: 9999; 
+            
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            background: rgba(40, 40, 60, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* ==================== GESTIÓN DE FASES ==================== */
+        .phase {
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            box-sizing: border-box;
+            animation: fadeIn 1.5s ease-out;
+            min-height: 450px; 
+        }
+        
+        #initialScreen { display: flex; } 
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #ffcc00;
+            font-size: 2.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #c4c4d9;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 25px; 
+            text-align: center;
+            width: 95%; 
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .question-block {
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%;
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Botones y Cuestionario */
+        .btn {
+            padding: 15px 35px;
+            margin: 10px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-quiz {
+            background-color: #3f3f5a;
+            margin: 8px auto; 
+            width: 90%;
+            max-width: 450px; 
+            color: #e4e4f0;
+            display: block; 
+            text-align: center; 
+        }
+        
+        .btn-continue {
+             background-color: #ffcc00; 
+             color: #1a1a2e;
+             margin-top: 20px;
+        }
+        
+        #passCode {
+            padding: 15px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 350px;
+            border-radius: 8px;
+            border: 1px solid #ffcc00;
+            background-color: #3f3f5a;
+            color: #e4e4f0;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        /* Estilo para las respuestas personalizadas */
+        .custom-answer {
+            width: 90%;
+            max-width: 450px; 
+            min-height: 50px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #5a5a7a;
+            background-color: #3f3f5a;
+            color: #e4e4f0;
+            font-size: 0.9em;
+            resize: vertical;
+            margin-bottom: 20px;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* FASE 5: Respuesta Abierta */
+        #q5 textarea {
+            width: 90%;
+            max-width: 600px;
+            min-height: 120px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #5a5a7a;
+            background-color: #3f3f5a;
+            color: #e4e4f0;
+            font-size: 1em;
+            resize: vertical;
+        }
+        
+        /* FASE 3: Propuesta */
+        #phase3 { justify-content: space-between; }
+        .proposal-content { width: 90%; margin: 20px auto; text-align: left; flex-grow: 1; }
+        #proposalText { 
+            font-size: 1.2em; 
+            line-height: 1.8; 
+            padding-left: 10px; 
+            white-space: pre-wrap; 
+            text-align: justify; 
+            color: #e4e4f0; 
+        }
+        
+        /* Estilos para el texto resaltado (Respuestas de ella) */
+        .proposal-content .highlight {
+             color: #00b894; 
+             font-weight: bold;
+        }
+
+        .proposal-buttons-final { 
+            margin-top: 40px; 
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-formspree-send {
+            background-color: #0087FF; /* Azul de Formspree */
+            color: #fff;
+            padding: 18px 40px;
+            margin-top: 20px;
+            text-transform: uppercase;
+        }
+
+        .ring-icon { font-size: 2em; color: #ffcc00; margin: 10px auto; display: block; width: fit-content;}
+
+        /* Media Query para móvil */
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            h1 { font-size: 2em; }
+            .proposal-content { width: 100%; text-align: center; }
+            #proposalText { text-align: left; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div id="initialScreen" class="phase">
+            <h1>Mensaje Secreto Clasificado</h1>
+            <p>He descubierto una coordenada importante para nuestro futuro, pero solo tú tienes la llave para abrirla.</p>
+            <button class="btn btn-start pulsing" onclick="startDecodification()">
+                Iniciar Desbloqueo (Presiona aquí)
+            </button>
+        </div>
+
+        <div id="phase1" class="phase">
+            <h1>Verificación de Acceso Personal</h1>
+            <p>Para seguir, debes encontrar la clave que sella nuestro compromiso ante Dios.</p>
+            
+            <p id="bibleClue" style="font-size: 1.3em; color: #00b894; font-style: italic; margin: 30px 0;"></p>
+
+            <input type="text" id="passCode" placeholder="Ingresa la Palabra Clave Aquí">
+            <button class="btn btn-primary" onclick="checkCode()">Desbloquear Ruta</button>
+            <p id="errorMsg" style="color: #ff6b6b; margin-top: 10px; display: none;">Palabra clave incorrecta. Vuelve a intentarlo.</p>
+        </div>
+
+        <div id="phase2" class="phase">
+            <h1>Construyendo Nuestro Fundamento</h1>
+            <p>¡Desbloqueaste las preguntas! Elige la respuesta que más se parezca a lo que deseas en el corazón para revelar el mensaje final.</p>
+
+            <form id="purposeQuiz">
+                <div class="question-block" id="q1">
+                    <h2>1. Para una relación exitosa, ¿cuál de estos pilares de la fe es el más esencial en la otra persona?</h2>
+                    <button type="button" class="btn btn-quiz" data-q="q1" data-a="A" onclick="selectAnswer(this)">A) El Propósito: Que ambos busquen ser luz, compartan el Evangelio y tengan un impacto fuerte en la vida de otros.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q1" data-a="B" onclick="selectAnswer(this)">B) El Amor Incondicional: Que el amor sea la base, con mucha paciencia, gracia y perdón mutuo.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q1" data-a="C" onclick="selectAnswer(this)">C) La Unión Espiritual: Que juntos adoren, oren y pongan a Dios como centro de todas las decisiones.</button>
+                    <div class="quiz-feedback" style="display: none; color: #00b894; margin-top: 10px;">¡Esa base es sólida! Edificaremos sobre esa roca.</div>
+                    
+                    <p style="margin-top: 25px; font-size: 1em; color: #c4c4d9; border-top: 1px dashed #5a5a7a; padding-top: 15px;">
+                        * Opcional: ¿Quieres agregar una respuesta propia?
+                    </p>
+                    <textarea class="custom-answer" id="customAnswerQ1" placeholder="Si tienes algo más específico en mente..."></textarea>
+
+                    <button type="button" class="btn btn-continue" data-q="q1" onclick="continueQuiz(this)">
+                        Continuar a la Pregunta 2
+                    </button>
+                </div>
+
+                <div class="question-block" id="q2" style="display: none;">
+                    <h2>2. ¿Qué característica te gustaría que tuviera una relación para impulsarte a crecer?</h2>
+                    <button type="button" class="btn btn-quiz" data-q="q2" data-a="A" onclick="selectAnswer(this)">A) Un ambiente de refugio: Donde se respete el silencio, la reflexión y el espacio para leer y crecer individualmente.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q2" data-a="B" onclick="selectAnswer(this)">B) Un ambiente de reto: Donde haya metas claras y se sienta parte de un equipo que avanza y conquista sueños.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q2" data-a="C" onclick="selectAnswer(this)">C) Un ambiente de aprendizaje: Donde ambos se reten a aprender, crear y enfrentar desafíos intelectuales o artísticos.</button>
+                    <div class="quiz-feedback" style="display: none; color: #00b894; margin-top: 10px;">¡Esa es la energía que te hace única!</div>
+                    
+                    <p style="margin-top: 25px; font-size: 1em; color: #c4c4d9; border-top: 1px dashed #5a5a7a; padding-top: 15px;">
+                        * Opcional: ¿Quieres agregar una respuesta propia?
+                    </p>
+                    <textarea class="custom-answer" id="customAnswerQ2" placeholder="Si tienes algo más específico en mente..."></textarea>
+
+                    <button type="button" class="btn btn-continue" data-q="q2" onclick="continueQuiz(this)">
+                        Continuar a la Pregunta 3
+                    </button>
+                </div>
+
+                <div class="question-block" id="q3" style="display: none;">
+                    <h2>3. ¿Qué cualidad crees que debe tener la persona ideal para lograr una conexión profunda?</h2>
+                    <button type="button" class="btn btn-quiz" data-q="q3" data-a="A" onclick="selectAnswer(this)">A) Intimidad de Corazón: Que el cimiento sea la fe y el saber que ambos tienen el mismo horizonte eterno.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q3" data-a="B" onclick="selectAnswer(this)">B) Total Aceptación: Que exista un refugio de seguridad total donde pueda ser vulnerable y libre de ser ella misma.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q3" data-a="C" onclick="selectAnswer(this)">C) Aventura Compartida: Que la relación sea un equipo dinámico que se rete a crecer y conquiste sueños juntos.</button>
+                    <div class="quiz-feedback" style="display: none; color: #00b894; margin-top: 10px;">¡Esa conexión es el motor que quiero que nos impulse!</div>
+
+                    <p style="margin-top: 25px; font-size: 1em; color: #c4c4d9; border-top: 1px dashed #5a5a7a; padding-top: 15px;">
+                        * Opcional: ¿Quieres agregar una respuesta propia?
+                    </p>
+                    <textarea class="custom-answer" id="customAnswerQ3" placeholder="Si tienes algo más específico en mente..."></textarea>
+
+                    <button type="button" class="btn btn-continue" data-q="q3" onclick="continueQuiz(this)">
+                        Continuar a la Pregunta 4
+                    </button>
+                </div>
+                
+                <div class="question-block" id="q4" style="display: none;">
+                    <h2>4. ¿Cuál de estas dinámicas crees que es la más vital para garantizar el éxito en una relación?</h2>
+                    <button type="button" class="btn btn-quiz" data-q="q4" data-a="A" onclick="selectAnswer(this)">A) Comunicación: Que cualquier problema o tema se hable de inmediato, con total respeto y honestidad.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q4" data-a="B" onclick="selectAnswer(this)">B) Tiempo Juntos: Que el tiempo de calidad intencional siempre sea una prioridad para fortalecer el vínculo.</button>
+                    <button type="button" class="btn btn-quiz" data-q="q4" data-a="C" onclick="selectAnswer(this)">C) Logros Mutuos: Que se definan metas a corto plazo (estudio, trabajo, ministerio) para celebrar y avanzar en equipo.</button>
+                    <div class="quiz-feedback" style="display: none; color: #00b894; margin-top: 10px;">¡Esa es la misión que quiero compartir contigo!</div>
+
+                    <p style="margin-top: 25px; font-size: 1em; color: #c4c4d9; border-top: 1px dashed #5a5a7a; padding-top: 15px;">
+                        * Opcional: ¿Quieres agregar una respuesta propia?
+                    </p>
+                    <textarea class="custom-answer" id="customAnswerQ4" placeholder="Si tienes algo más específico en mente..."></textarea>
+
+                    <button type="button" class="btn btn-continue" data-q="q4" onclick="continueQuiz(this)">
+                        Continuar a la Pregunta 5 (Visión)
+                    </button>
+                </div>
+
+                <div class="question-block" id="q5" style="display: none;">
+                    <h2>5. Mi visión de futuro: Si pudieras describir en detalle la vida, los gustos y el ambiente donde te sientes completamente realizada, ¿qué dirías? (Sé lo más honesta posible)</h2>
+                    <textarea id="openAnswer" placeholder="Ej: Anhelo un ambiente tranquilo con mucho arte y música, donde podamos tener largas conversaciones y tiempo para viajar a la naturaleza. Me siento realizada cuando..."></textarea>
+                </div>
+
+
+                <button type="button" class="btn btn-start" id="proposalBtn" style="display: none; margin-top: 40px;" onclick="submitFormAndPropose()">
+                    ¡Revelar la Coordenada Final!
+                </button>
+            </form>
+        </div>
+
+        <form id="phase3" class="phase" method="POST">
+            <h1 style="color: #00b894;">La Declaración de Propósito Eterno</h1>
+            
+            <div class="proposal-content">
+                <div id="proposalText"></div>
+                
+                <div id="finalLinkContainer" style="display: none; margin-top: 30px; text-align: center;">
+                    <p style="font-size: 1.2em; color: #ffcc00;">
+                        ¡Último paso! Envía las coordenadas para que las descifre.
+                    </p>
+                    <div id="hiddenFieldsContainer" style="display:none;"></div>
+                </div>
+            </div>
+            
+            <div id="proposalButtonsFinal" class="proposal-buttons-final" style="display: none;">
+                 <button type="submit" class="btn btn-formspree-send">
+                    <span style="font-size: 1.5em; vertical-align: middle;">🚀</span> Enviar Coordenadas al Servidor
+                </button>
+            </div>
+        </form>
+        
+    </div>
+
+    <script>
+        // ====================================================================================
+        // ⚠️ SECCIÓN DE PERSONALIZACIÓN OBLIGATORIA ⚠️
+        // ====================================================================================
+        const CUSTOM = {
+            NAME: "Alicia", // 🚨 REEMPLAZA ESTE NOMBRE POR EL DE ELLA 🚨
+            FORMSPREE_ID: "xanrkklv", // 🚨 TU ID DE FORMSPREE 🚨
+            
+            // 🚨 ACERTIJO BÍBLICO (Tu elección: 1 Corintios 13:13) 🚨
+            BIBLE_QUIZ: {
+                CLUE: "Busca la Palabra que encierra el versículo de 1 Corintios 13:13, la que es mayor que la fe y la esperanza. Esa es la clave.", 
+                ANSWER: "amor", // Respuesta en minúsculas y sin tildes para verificación flexible.
+            }
+            // ====================================================================================
+        };
+
+        let quizAnswers = {};
+        let quizCompleted = 0; 
+        
+        // Configurar el endpoint de Formspree
+        document.getElementById('phase3').action = `https://formspree.io/f/${CUSTOM.FORMSPREE_ID}`;
+
+
+        // Mensajes (Base de la Propuesta - Tono de compromiso)
+        const PROPOSAL_BASE = `Mi amada ${CUSTOM.NAME},|L|Has completado este camino y cada respuesta ha revelado la profundidad de tu espíritu. Estos son los cimientos que has elegido para nuestro futuro, y mi promesa al respecto:`;
+        
+        // DECLARACIÓN DE INTENCIONES (Lenguaje más natural)
+        const PROPOSAL_FINAL = `|L||L|La claridad de tu fe, el deseo de tu corazón y la audacia de tu visión me llenan de una paz increíble. Mi compromiso es ser el hombre que te apoye en cada sueño, que luche por cada una de esas prioridades y que te ame con la Gracia incondicional de Dios.|L||L|Quiero que sepas que estoy comprometido a construir este futuro. **Hablemos pronto de estos cimientos, tengo mucho que decirte.**`;
+
+        // Módulos de personalización (Se usará la clase 'highlight' para el color verde)
+        const PERSONALIZATION = {
+            'q1': {
+                'A': "El Propósito es tu pilar; mi promesa es que seré un compañero de vida que siempre te impulsará a ser luz y a servir a Dios.",
+                'B': "El Amor Incondicional es tu pilar; mi promesa es que seré ese espacio de gracia, perdón y aceptación que necesitas para ser libre.",
+                'C': "La Unión Espiritual es tu pilar; mi promesa es que construiré contigo ese altar de adoración en el que Dios siempre será el centro.",
+            },
+            'q2': {
+                'A': "Buscas un Refugio y respeto por el silencio; mi promesa es que seré un guardián de ese espacio para que tu alma se renueve y florezca.",
+                'B': "Buscas un Reto y un equipo; mi promesa es que seré ese compañero de visión que te impulse a conquistar cada meta divina.",
+                'C': "Buscas Aprendizaje y creatividad; mi promesa es que seré tu compañero de aventura intelectual y nunca dejaremos de avanzar y crecer juntos.",
+            },
+            'q3': { 
+                'A': "Priorizas la Intimidad de Corazón; mi promesa es que esa comunión será la roca inamovible para que nuestra estabilidad sea eterna.",
+                'B': "Priorizas la Total Aceptación; mi promesa es ser el refugio más seguro donde te sientas libre de ser vulnerable y completamente tú misma.",
+                'C': "Priorizas la Aventura Compartida; mi promesa es ser el mejor coequipero para que retemos al mundo y conquistemos cada sueño a tu lado.",
+            },
+            'q4': { 
+                'A': "Priorizas la Comunicación abierta; mi promesa es que construiremos un canal de respeto donde los conflictos se resuelvan siempre en amor y verdad.",
+                'B': "Priorizas el Tiempo Juntos; mi promesa es que nuestro vínculo emocional siempre será la prioridad que proteja el corazón de nuestra relación.",
+                'C': "Priorizas los Logros Mutuos; mi promesa es que definiremos juntos cada paso para que siempre celebremos y avancemos como un equipo invencible.",
+            }
+        };
+
+        // ====================================================================================
+        // LÓGICA PRINCIPAL Y DE FLUJO
+        // ====================================================================================
+        
+        function nextPhase(phaseNumber) {
+            document.querySelectorAll('.phase').forEach(p => p.style.display = 'none');
+            
+            const nextPhaseElement = document.getElementById(`phase${phaseNumber}`);
+            if (nextPhaseElement) {
+                nextPhaseElement.style.display = 'flex';
+                if (phaseNumber === 3) {
+                    typeProposalMessage();
+                    // 🚨 Nuevo: Insertar campos ocultos antes de la propuesta para el envío por Formspree
+                    insertHiddenFormspreeFields(); 
+                }
+                
+                window.scrollTo(0, 0); 
+            }
+        }
+        
+        window.startDecodification = () => {
+            document.getElementById('initialScreen').style.display = 'none';
+            document.getElementById('phase1').style.display = 'flex';
+            document.body.style.backgroundColor = '#2e1a1a';
+            // Mostrar el acertijo
+            document.getElementById('bibleClue').textContent = CUSTOM.BIBLE_QUIZ.CLUE;
+        }
+
+        window.checkCode = () => {
+            // Normaliza la respuesta
+            const inputCode = document.getElementById('passCode').value
+                               .trim()                         
+                               .toLowerCase()                  
+                               .normalize("NFD")               
+                               .replace(/[\u0300-\u036f]/g, ""); 
+            
+            const requiredAnswer = CUSTOM.BIBLE_QUIZ.ANSWER
+                                   .toLowerCase()
+                                   .normalize("NFD")
+                                   .replace(/[\u0300-\u036f]/g, "");
+            
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (inputCode === requiredAnswer) { 
+                errorMsg.style.display = 'none';
+                
+                document.getElementById('phase1').innerHTML = `
+                    <h1 style="color: #00b894;">¡LA PALABRA CLAVE ES CORRECTA!</h1>
+                    <p style="font-size: 1.5em; animation: pulse 1s 3;">"Y ahora permanecen la fe, la esperanza y el **AMOR**. Pero el mayor de ellos es el **AMOR**." (1 Corintios 13:13 - Adaptado)</p>`;
+                
+                document.body.style.backgroundColor = '#1a1a2e';
+                
+                // ⚠️ TIEMPO EXTENDIDO A 7 SEGUNDOS (7000ms)
+                setTimeout(() => {
+                    nextPhase(2); 
+                }, 7000); 
+                
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        // ====================================================================================
+        // LÓGICA DEL CUESTIONARIO Y ENVÍO A FORMSPREE
+        // ====================================================================================
+        
+        window.selectAnswer = (button) => {
+            const qId = button.getAttribute('data-q');
+            const answer = button.getAttribute('data-a');
+            const qBlock = document.getElementById(qId);
+            const customInput = document.getElementById(`customAnswer${qId.toUpperCase()}`);
+
+            // Estilos y guardado de respuestas
+            qBlock.querySelectorAll('.btn-quiz').forEach(btn => {
+                btn.style.backgroundColor = '#3f3f5a';
+                btn.style.opacity = 1;
+            });
+            
+            quizAnswers[qId] = answer;
+            button.style.backgroundColor = '#00b894';
+
+            if (customInput) {
+                customInput.disabled = true;
+                customInput.style.opacity = 0.5;
+                customInput.value = ''; 
+            }
+
+            qBlock.querySelector('.quiz-feedback').style.display = 'block';
+            qBlock.querySelector('.btn-continue').disabled = false;
+        };
+        
+        window.continueQuiz = (button) => {
+            const qId = button.getAttribute('data-q');
+            const qBlock = document.getElementById(qId);
+            const customInput = document.getElementById(`customAnswer${qId.toUpperCase()}`);
+            let answered = false;
+            
+            if (customInput && customInput.value.trim() !== "") {
+                 quizAnswers[qId] = customInput.value.trim();
+                 answered = true;
+            } else if (quizAnswers[qId]) {
+                answered = true;
+            }
+
+            if (!answered) {
+                alert("Por favor, selecciona una opción o ingresa tu propia respuesta para continuar.");
+                return;
+            }
+            
+            qBlock.style.display = 'none'; 
+            
+            const nextQNum = parseInt(qId.slice(1)) + 1;
+            const nextQId = `q${nextQNum}`;
+            const nextQBlock = document.getElementById(nextQId);
+
+            if (nextQBlock) {
+                if (nextQId === 'q5') {
+                     nextQBlock.style.display = 'flex';
+                     document.getElementById('proposalBtn').style.display = 'block';
+                } else {
+                    nextQBlock.style.display = 'flex';
+                }
+            } 
+            
+            window.scrollTo(0, 0); 
+        };
+
+
+        window.submitFormAndPropose = () => {
+             const openAnswerElement = document.getElementById('openAnswer');
+             if (openAnswerElement.value.trim() === "") {
+                 alert("Por favor, describe tu visión de futuro en la pregunta 5 para continuar.");
+                 return;
+             }
+             quizAnswers['q5'] = openAnswerElement.value.trim();
+
+            nextPhase(3);
+        };
+        
+        // ====================================================================================
+        // INTEGRACIÓN FORMSPREE
+        // ====================================================================================
+        
+        function insertHiddenFormspreeFields() {
+            const container = document.getElementById('hiddenFieldsContainer');
+            container.innerHTML = ''; 
+
+            // 1. Campo de Asunto (Subject)
+            let subjectInput = document.createElement('input');
+            subjectInput.setAttribute('type', 'hidden');
+            subjectInput.setAttribute('name', '_subject');
+            subjectInput.setAttribute('value', `¡Coordenadas Finales de ${CUSTOM.NAME} recibidas!`);
+            container.appendChild(subjectInput);
+
+            // 2. Crear campos individuales para cada respuesta (Q1 a Q5)
+            
+            let introText = document.createElement('input');
+            introText.setAttribute('type', 'hidden');
+            introText.setAttribute('name', 'Mensaje_Inicial');
+            introText.setAttribute('value', `El/Ella ha llegado al final de la búsqueda y ha enviado sus coordenadas. Puedes ver las respuestas clave a continuación:`);
+            container.appendChild(introText);
+            
+            for (const qId in quizAnswers) {
+                if (quizAnswers.hasOwnProperty(qId)) {
+                    let field = document.createElement('input');
+                    field.setAttribute('type', 'hidden');
+                    
+                    let fieldName = '';
+                    switch(qId) {
+                        case 'q1': fieldName = 'Q1_Pilar_de_Fe'; break;
+                        case 'q2': fieldName = 'Q2_Ambiente_de_Crecimiento'; break;
+                        case 'q3': fieldName = 'Q3_Cualidad_de_Conexión'; break;
+                        case 'q4': fieldName = 'Q4_Dinámica_Vital'; break;
+                        case 'q5': fieldName = 'Q5_VISION_PERSONAL_CLAVE'; break;
+                        default: fieldName = qId;
+                    }
+                    
+                    field.setAttribute('name', fieldName);
+                    field.setAttribute('value', quizAnswers[qId]);
+                    container.appendChild(field);
+                }
+            }
+
+            // 3. Opcional: El enlace codificado completo (por si acaso)
+            let linkInput = document.createElement('input');
+            linkInput.setAttribute('type', 'hidden');
+            linkInput.setAttribute('name', 'Enlace_Codificado_Completo');
+            linkInput.setAttribute('value', generateFinalLink());
+            container.appendChild(linkInput);
+
+            document.getElementById('finalLinkContainer').style.display = 'block';
+        }
+
+        // ====================================================================================
+        // Funciones de decodificación y tipeo
+        // ====================================================================================
+        
+        function getPersonalizedText(qId) {
+            const answer = quizAnswers[qId];
+            
+            if (answer && answer.length > 1 && answer !== 'A' && answer !== 'B' && answer !== 'C') {
+                return `Tu propia respuesta fue:\u2581L"${answer}"`;
+            }
+            return PERSONALIZATION[qId][answer];
+        }
+
+        window.typeProposalMessage = () => {
+            const textElement = document.getElementById('proposalText');
+            let charIndex = 0;
+            
+            let message = PROPOSAL_BASE 
+                .replace(/\|L\|/g, '\u2581L') 
+                .replace(/\|P\|/g, '\u2581P')
+                .replace(/\|H\|/g, '\u2581H');
+
+            message += '\u2581L' + '||' + getPersonalizedText('q1') + '||' + '\u2581L'; 
+            message += '\u2581L' + '||' + getPersonalizedText('q2') + '||' + '\u2581L';
+            message += '\u2581L' + '||' + getPersonalizedText('q3') + '||' + '\u2581L';
+            message += '\u2581L' + '||' + getPersonalizedText('q4') + '||';
+            
+            if (quizAnswers['q5']) {
+                message += `\u2581L\u2581LPero lo más importante es tu visión de futuro.\u2581LMi compromiso es ser el hombre que te ayude a construir este ambiente que describes:\u2581L\u2581H"**${quizAnswers['q5']}**"\u2581L\u2581P`;
+            } else {
+                message += '\u2581L\u2581P';
+            }
+            
+            message += PROPOSAL_FINAL
+                 .replace(/\|L\|/g, '\u2581L') 
+                 .replace(/\|P\|/g, '\u2581P')
+                 .replace(/\|H\|/g, '\u2581H'); 
+
+            const typingSpeed = 30; 
+            const pauseTime = 1500; 
+
+            textElement.innerHTML = '';
+
+            function type() {
+                if (charIndex >= message.length) {
+                    document.getElementById('proposalButtonsFinal').style.display = 'flex';
+                    return;
+                }
+
+                if (message.charAt(charIndex) === '\u2581') {
+                    const nextChar = message.charAt(charIndex + 1);
+                    charIndex += 2; 
+
+                    if (nextChar === 'P') { setTimeout(type, pauseTime); return; }
+                    if (nextChar === 'H') { 
+                        textElement.innerHTML += '<div class="ring-icon pulsing">💍</div>';
+                        setTimeout(type, 10);
+                        return;
+                    } 
+                    if (nextChar === 'L') { 
+                        textElement.innerHTML += '<br>';
+                        setTimeout(type, 10);
+                        return;
+                    }
+                }
+
+                if (message.substring(charIndex, charIndex + 2) === '**') {
+                    const nextStarIndex = message.indexOf('**', charIndex + 2);
+                    if (nextStarIndex !== -1) {
+                        const boldText = message.substring(charIndex + 2, nextStarIndex);
+                        const span = document.createElement('span');
+                        span.innerHTML = `<strong>${boldText}</strong>`;
+                        span.classList.add('highlight'); 
+                        textElement.appendChild(span);
+                        charIndex = nextStarIndex + 2;
+                        setTimeout(type, typingSpeed * boldText.length / 4); 
+                        return;
+                    }
+                }
+                
+                if (message.substring(charIndex, charIndex + 2) === '||') {
+                    const nextDoublePipeIndex = message.indexOf('||', charIndex + 2);
+                    if (nextDoublePipeIndex !== -1) {
+                        const answerText = message.substring(charIndex + 2, nextDoublePipeIndex);
+                        const span = document.createElement('span');
+                        span.textContent = answerText;
+                        span.classList.add('highlight'); 
+                        textElement.appendChild(span);
+                        charIndex = nextDoublePipeIndex + 2;
+                        setTimeout(type, typingSpeed * answerText.length / 4); 
+                        return;
+                    }
+                }
+                
+                const char = message.charAt(charIndex);
+                const span = document.createElement('span');
+                span.textContent = char;
+                textElement.appendChild(span);
+                
+                charIndex++;
+                setTimeout(type, typingSpeed);
+            }
+            type();
+        };
+
+        function generateFinalLink() {
+            const jsonAnswers = JSON.stringify(quizAnswers);
+            const encoded = btoa(jsonAnswers);
+            return `RespuestasCodificadas=${encoded}`; 
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Asegura que la pantalla de inicio sea la primera en cargarse
+            document.getElementById('initialScreen').style.display = 'flex';
+        });
+
+    </script>
+</body>
+</html>
